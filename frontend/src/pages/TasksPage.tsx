@@ -92,59 +92,340 @@ export const TasksPage: React.FC = () => {
   }, [search, filterPriority, filterLevel, filterType]);
 
   return (
-    <div className="tasks-page theme-black" style={{ minHeight: '100vh', paddingTop: '140px', background: '#000', color: '#fff' }}>
-      <header style={{ padding: '0 4rem 3rem' }}>
-        <h1 className="serif-text accent-text" style={{ fontSize: '4.5rem', marginBottom: '1rem' }}>The Mission Board</h1>
-        <p className="mono-text" style={{ opacity: 0.4 }}>{filteredTasks.length} AUDITED MISSIONS // SCALE READY</p>
+    <div className="tasks-page theme-black">
+      <header className="tasks-header">
+        <h1 className="serif-text accent-text tasks-title">The Mission Board</h1>
+        <p className="mono-text tasks-subtitle">{filteredTasks.length} AUDITED MISSIONS // SCALE READY</p>
       </header>
       
-      <section style={{ padding: '0 4rem 4.5rem', display: 'flex', gap: '1.2rem', flexWrap: 'wrap', alignItems: 'center', position: 'relative', zIndex: 100 }}>
-         <div style={{ flex: '1 1 400px', maxWidth: '600px' }}>
-            <input type="text" placeholder="QUERY MASTER BACKLOG..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '1.2rem 1.5rem', borderRadius: '4px', color: '#fff', outline: 'none' }} className="mono-text" />
+      <section className="filters-section">
+         <div className="search-wrapper">
+            <input type="text" placeholder="QUERY MASTER BACKLOG..." value={search} onChange={(e) => setSearch(e.target.value)} className="mono-text search-input" />
          </div>
-         <div style={{ display: 'flex', gap: '1rem' }}>
+         <div className="selects-wrapper">
             <CustomSelect label="PRIORITY" value={filterPriority} options={['All', 'High', 'Medium', 'Low']} onChange={setFilterPriority} />
             <CustomSelect label="LEVEL" value={filterLevel} options={['All', 'Fresher', 'Intermediate', 'Advanced']} onChange={setFilterLevel} />
             <CustomSelect label="TYPE" value={filterType} options={['All', 'Coding', 'Non-Coding']} onChange={setFilterType} />
          </div>
       </section>
 
-      <section style={{ padding: '0 4rem 15rem' }}>
-         <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-            {filteredTasks.map(t => (
-               <div key={t.id} onClick={() => setSelectedTask(t)} className="task-row" style={{ display: 'flex', alignItems: 'center', padding: '1.8rem 0', borderBottom: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'all 0.2s ease', gap: '3rem' }}>
-                  <span className="mono-text" style={{ width: '60px', fontSize: '0.75rem', opacity: 0.3 }}>{t.id}</span>
-                  <div style={{ flex: 1 }}>
-                     <h3 style={{ fontSize: '1.3rem', color: '#fff' }}>{t.title}</h3>
-                     <p className="mono-text" style={{ fontSize: '0.65rem', opacity: 0.3, marginTop: '0.4rem' }}>{t.phase} // {t.type.toUpperCase()} // {t.level.toUpperCase()}</p>
+      <section className="tasks-list-section">
+         <div className="tasks-list-container">
+            {filteredTasks.length > 0 ? (
+               filteredTasks.map(t => (
+                  <div key={t.id} onClick={() => setSelectedTask(t)} className="task-row">
+                     <span className="mono-text task-id">{t.id}</span>
+                     <div className="task-main">
+                        <h3 className="task-row-title">{t.title}</h3>
+                        <p className="mono-text task-meta">{t.phase} // {t.type.toUpperCase()} // {t.level.toUpperCase()}</p>
+                     </div>
+                     <div className="task-priority-wrapper">
+                        <span className={`mono-text priority-tag priority-${t.priority.toLowerCase()}`}>{t.priority.toUpperCase()}</span>
+                     </div>
+                     <span className="mono-text accent-text task-reward">{t.reward}</span>
                   </div>
-                  <div style={{ width: '100px' }}><span className="mono-text" style={{ fontSize: '0.65rem', padding: '0.4rem 0.8rem', borderRadius: '4px', border: '1px solid currentcolor', color: t.priority === 'High' ? '#ccff00' : t.priority === 'Medium' ? '#fff' : 'rgba(255,255,255,0.2)' }}>{t.priority.toUpperCase()}</span></div>
-                  <span className="mono-text accent-text" style={{ width: '120px', fontSize: '1.1rem', fontWeight: 950, textAlign: 'right' }}>{t.reward}</span>
-               </div>
-            ))}
+               ))
+            ) : (
+               <div className="no-tasks">NO MISSIONS FOUND FOR THIS QUERY</div>
+            )}
          </div>
       </section>
       
       {selectedTask && (
-         <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.96)', backdropFilter: 'blur(40px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }} onClick={() => setSelectedTask(null)}>
-            <div data-lenis-prevent style={{ maxWidth: '900px', width: '100%', background: '#0e0e0e', border: '1px solid #ccff00', borderRadius: '12px', padding: '5rem', maxHeight: '85vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
-               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4rem' }}>
-                  <h2 className="serif-text" style={{ fontSize: '3.5rem', color: '#fff', lineHeight: '1' }}>{selectedTask.title}</h2>
-                  <button onClick={() => setSelectedTask(null)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '3rem', opacity: 0.5, cursor: 'pointer' }}>×</button>
+         <div className="task-modal-overlay" onClick={() => setSelectedTask(null)}>
+            <div data-lenis-prevent className="task-modal-content" onClick={e => e.stopPropagation()}>
+               <div className="modal-header">
+                  <h2 className="serif-text modal-title">{selectedTask.title}</h2>
+                  <button onClick={() => setSelectedTask(null)} className="modal-close">×</button>
                </div>
-               <div style={{ marginBottom: '4rem' }}>
-                  <h4 className="mono-text accent-text" style={{ marginBottom: '1.5rem', fontSize: '0.85rem' }}>// TECHNICAL SPECIFICATION</h4>
-                  <p style={{ opacity: 0.8, fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '2.5rem' }}>{selectedTask.longDescription}</p>
-                  <h4 className="mono-text accent-text" style={{ marginBottom: '1.5rem', fontSize: '0.85rem' }}>// REAL WORLD CONTEXT</h4>
-                  <div style={{ padding: '2rem', background: 'rgba(204,255,0,0.03)', border: '1px solid rgba(204,255,0,0.1)', borderRadius: '12px', color: '#fff', opacity: 0.9, lineHeight: '1.6' }}>{selectedTask.realWorld}</div>
+               <div className="modal-body">
+                  <h4 className="mono-text accent-text body-label">// TECHNICAL SPECIFICATION</h4>
+                  <p className="body-desc">{selectedTask.longDescription}</p>
+                  <h4 className="mono-text accent-text body-label">// REAL WORLD CONTEXT</h4>
+                  <div className="body-context">{selectedTask.realWorld}</div>
                </div>
-               <div style={{ textAlign: 'center' }}>
-                  <a href="https://github.com/ANDROIDHASSAN/The-Consistent-Coders" target="_blank" className="btn-primary btn-large"><span className="btn-text">INITIALIZE MISSION ↝</span><div className="btn-bg"></div></a>
+               <div className="modal-footer">
+                  <a href="https://github.com/ANDROIDHASSAN/The-Consistent-Coders" target="_blank" className="btn-primary btn-large">
+                     <span className="btn-text">INITIALIZE MISSION ↝</span>
+                     <div className="btn-bg"></div>
+                  </a>
                </div>
             </div>
          </div>
       )}
       <Footer />
+
+      <style>{`
+         .tasks-page {
+            min-height: 100vh;
+            padding-top: 140px;
+            background: #000;
+            color: #fff;
+         }
+
+         .tasks-header {
+            padding: 0 5vw 3rem;
+         }
+
+         .tasks-title {
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            marginBottom: 1rem;
+         }
+
+         .tasks-subtitle {
+            opacity: 0.4;
+            font-size: clamp(0.6rem, 2vw, 0.75rem);
+         }
+
+         .filters-section {
+            padding: 0 5vw 4.5rem;
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            align-items: center;
+            position: relative;
+            z-index: 100;
+         }
+
+         .search-wrapper {
+            flex: 1 1 300px;
+            maxWidth: 600px;
+         }
+
+         .search-input {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 1.2rem 1.5rem;
+            borderRadius: 4px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s ease;
+         }
+
+         .search-input:focus {
+            border-color: var(--color-accent);
+         }
+
+         .selects-wrapper {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+         }
+
+         .tasks-list-section {
+            padding: 0 5vw 15rem;
+         }
+
+         .tasks-list-container {
+            borderTop: 1px solid rgba(255,255,255,0.1);
+         }
+
+         .task-row {
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+            borderBottom: 1px solid rgba(255,255,255,0.08);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            gap: 2rem;
+         }
+
+         .task-row:hover {
+            background: rgba(255,255,255,0.02);
+            padding-left: 1rem;
+            padding-right: 1rem;
+         }
+
+         .task-id {
+            width: 60px;
+            fontSize: 0.75rem;
+            opacity: 0.3;
+            flex-shrink: 0;
+         }
+
+         .task-main {
+            flex: 1;
+            min-width: 0;
+         }
+
+         .task-row-title {
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+         }
+
+         .task-meta {
+            fontSize: 0.65rem;
+            opacity: 0.3;
+            marginTop: 0.4rem;
+         }
+
+         .task-priority-wrapper {
+            width: 100px;
+            flex-shrink: 0;
+            text-align: center;
+         }
+
+         .priority-tag {
+            fontSize: 0.65rem;
+            padding: 0.4rem 0.8rem;
+            borderRadius: 4px;
+            border: 1px solid currentcolor;
+         }
+
+         .priority-high { color: #ccff00; }
+         .priority-medium { color: #fff; }
+         .priority-low { color: rgba(255,255,255,0.2); }
+
+         .task-reward {
+            width: 120px;
+            fontSize: clamp(0.9rem, 2.5vw, 1.1rem);
+            fontWeight: 950;
+            textAlign: right;
+            flex-shrink: 0;
+         }
+
+         .no-tasks {
+            padding: 5rem 0;
+            text-align: center;
+            opacity: 0.2;
+            letter-spacing: 0.2em;
+            font-family: var(--font-mono);
+         }
+
+         /* Modal styles */
+         .task-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.96);
+            backdrop-filter: blur(40px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+         }
+
+         .task-modal-content {
+            maxWidth: 900px;
+            width: 100%;
+            background: #0e0e0e;
+            border: 1px solid #ccff00;
+            borderRadius: 12px;
+            padding: clamp(2rem, 8vw, 5rem);
+            maxHeight: 90vh;
+            overflow-y: auto;
+            position: relative;
+         }
+
+         .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            marginBottom: 4rem;
+            gap: 2rem;
+         }
+
+         .modal-title {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            color: #fff;
+            line-height: 1;
+         }
+
+         .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            fontSize: 3rem;
+            opacity: 0.5;
+            cursor: pointer;
+            line-height: 0.5;
+         }
+
+         .body-label {
+            marginBottom: 1.5rem;
+            fontSize: 0.85rem;
+         }
+
+         .body-desc {
+            opacity: 0.8;
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            line-height: 1.8;
+            marginBottom: 2.5rem;
+         }
+
+         .body-context {
+            padding: 2rem;
+            background: rgba(204,255,0,0.03);
+            border: 1px solid rgba(204,255,0,0.1);
+            borderRadius: 12px;
+            color: #fff;
+            opacity: 0.9;
+            line-height: 1.6;
+            marginBottom: 4rem;
+         }
+
+         .modal-footer {
+            textAlign: center;
+         }
+
+         @media (max-width: 768px) {
+            .tasks-page {
+               padding-top: 100px;
+            }
+            .tasks-header {
+               padding-bottom: 2rem;
+            }
+            .filters-section {
+               gap: 1rem;
+               padding-bottom: 3rem;
+            }
+            .task-row {
+               gap: 1rem;
+               padding: 1.5rem 0;
+            }
+            .task-id {
+               display: none;
+            }
+            .task-priority-wrapper {
+               width: auto;
+            }
+            .task-reward {
+               width: auto;
+            }
+            .priority-tag {
+               padding: 0.3rem 0.5rem;
+               font-size: 0.55rem;
+            }
+            .modal-header {
+               margin-bottom: 2rem;
+            }
+            .body-context {
+               padding: 1.5rem;
+            }
+            .selects-wrapper > div {
+               flex: 1 1 140px;
+            }
+         }
+
+         @media (max-width: 480px) {
+            .task-row {
+               flex-wrap: wrap;
+               gap: 0.5rem;
+            }
+            .task-main {
+               width: 100%;
+               flex: none;
+            }
+            .task-priority-wrapper {
+               margin-right: auto;
+            }
+         }
+      `}</style>
     </div>
+
   );
 };
