@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useLenis } from './hooks/useLenis';
 import { CustomCursor } from './components/CustomCursor';
 import { Navbar } from './components/Navbar';
@@ -276,6 +277,7 @@ function App() {
           <AppContent />
         </BarbaWrapper>
       </Router>
+      <Analytics />
     </ErrorBoundary>
   );
 }
